@@ -11,6 +11,10 @@ def func_pw3(x, A, k, b):
     # y = A * x ^ k + b
     return A * np.power(x, k) + b
 
+def func_exp(x, A, k):
+    # y = A ^ x + k
+    return A ** x + k
+
 def func_linear(x, k, b):
     return k * x + b
 
@@ -18,7 +22,7 @@ def func_quad2(x, k, b):
     return k * x**2 + b
 
 def func_quad3(x, a, b, c):
-    return a * x**2 + b * x + c
+    return a * ((x - b) ** 2) + c
 
 def func_tmp(x, m, b, c):
     return m * np.sqrt(1 + np.power(b * x, 2) ) + c

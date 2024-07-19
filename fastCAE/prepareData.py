@@ -8,7 +8,7 @@ table_dir = "/home/zhaoy/asset-fastCAE/results/vvenc/tables"
 data_dir  = "/home/zhaoy/asset-fastCAE/dataset/vvenc"
 
 targets = ["bitrate", "log2bitrate", "psnr", "log2psnr", "ssim", "log2ssim", "vmaf", "log2vmaf"]
-funcs = ["linear", "power", "quadratic2", "quadratic3"]
+funcs = ["linear", "power", "quadratic2", "exp"]
 
 def extract_floats(s, pattern = r"[-+]?\d*\.\d+e?[-+]?\d*"):
     matches = re.findall(pattern, s)

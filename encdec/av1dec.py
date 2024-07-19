@@ -1,21 +1,20 @@
-import time
 import os
 from tqdm import tqdm
 
-vvdecapp = "/home/zhaoy/vvdec/bin/release-static/vvdecapp"
-
-# sizes = ["360P", "540P", "720P", "1080P"]
-
-sizes = ["1080P"]
-
-def countJobs(jobName):
-    """ 检测某个任务的数量 """
-    fileHandle = os.popen(f"ps -e | grep {jobName} | wc -l")
-    return int(fileHandle.read())
+sizes = ["360P", "540P", "720P", "1080P"]
+size_map = {
+    "2160P": "3840x2160",
+    "1080P": "1920x1080",
+    "720P": "1280x720",
+    "540P": "960x540",
+    "360P": "640x360",
+}
+av1dec = "/home/zhaoy/SVT-AV1/Bin/Release/SvtAv1DecApp"
 
 def decYoutubeUGC():
-    root = "/hdd/YoutubeUGC/enc_rlts/vvenc"
+    root = "/hdd/YoutubeUGC/enc_rlts/svtav1"
     for size in sizes:
+        width, height = size_map[size].split("x")[0], size_map[size].split("x")[1]
         sub_root = os.path.join(root, size)
 
         seqs = os.listdir(sub_root)
@@ -25,24 +24,23 @@ def decYoutubeUGC():
             os.makedirs(rec_dir, exist_ok=True)
 
             for bin_file in list(filter(lambda x: x.endswith(".bin"), os.listdir(bin_dir))):
+                # Lecture-003a_1080P_scene1_qp42_11.bin
                 bin_path = os.path.join(bin_dir, bin_file)
                 rec_path = os.path.join(rec_dir, bin_file.replace(".bin", ".yuv"))
 
                 if os.path.exists(rec_path):
                     os.system(f"rm -f {rec_path}")
 
-                cmd = f"{vvdecapp} -b {bin_path} -o {rec_path} --threads 8 &"
+                cmd = f"{av1dec} -i {bin_path} -w {width} -h {height} -o {rec_path}"
                 os.system(cmd)
-
-                while countJobs("vvdecapp") > 120:
-                    time.sleep(0.5)
 
 
 def decCTC():
-    root = "/hdd/CTC/enc_rlts/vvenc"
+    root = "/hdd/CTC/enc_rlts/svtav1"
     classes = ["B", "C", "D", "E", "F"]
     for c in classes:
         for size in sizes:
+            width, height = size_map[size].split("x")[0], size_map[size].split("x")[1]
             sub_root = os.path.join(root, c, size)
             seqs = os.listdir(sub_root)
 
@@ -58,8 +56,8 @@ def decCTC():
                     if os.path.exists(rec_path):
                         os.system(f"rm -f {rec_path}")
 
-                    cmd = f"{vvdecapp} -b {bin_path} -o {rec_path} --threads 8 &"
+                    cmd = f"{av1dec} -i {bin_path} -w {width} -h {height} -o {rec_path}"
                     os.system(cmd)
 
-                    while countJobs("vvdecapp") > 120:
-                        time.sleep(0.5)
+if __name__ == '__main__':
+    decCTC()

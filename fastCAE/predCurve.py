@@ -189,7 +189,7 @@ def process_task(params):
 if __name__ == '__main__':
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
     regressors = {
-        RandomForestRegressor: {'n_estimators': 800, 'max_depth': 10, 'min_samples_split': 2, 'min_samples_leaf': 1, 'random_state': 42},
+        RandomForestRegressor: {'n_estimators': 1000, 'max_depth': 8, 'min_samples_split': 2, 'min_samples_leaf': 1, 'random_state': 42},
         LinearRegression: {},
         LinearSVR: {'C': 1.0, 'epsilon': 0.1, 'max_iter': 30000, 'tol': 1e-4, 'random_state': 42},
         SGDRegressor: {'loss': 'huber', 'penalty': 'l1', 'alpha': 0.001, 'learning_rate': 'optimal', 'max_iter': 30000, 'tol': 1e-4, 'random_state': 42},
@@ -199,7 +199,7 @@ if __name__ == '__main__':
 
     tasks = []
     for target in ["bitrate", "log2bitrate", "psnr", "log2psnr", "ssim", "log2ssim", "vmaf", "log2vmaf"]:
-        for func in ["linear", "power", "quadratic2", "quadratic3"]:
+        for func in ["linear", "power", "quadratic2"]:
             for size_x in ["360P", "540P", "720P", "1080P"]:
                 for preset_x in ["faster", "medium", "slower"]:
                     tasks.append((target, func, preset_x, size_x))
@@ -213,5 +213,5 @@ if __name__ == '__main__':
     all_rlts_df = pd.concat(all_rlts, axis=0)
     all_preds_df = pd.concat(all_preds, axis=0)
 
-    all_rlts_df.to_csv(f"{rlt_dir}/all_rlts_extended_x.csv", index=False)
-    all_preds_df.to_csv(f"{rlt_dir}/all_preds_extended_x.csv", index=False)
+    all_rlts_df.to_csv(f"{rlt_dir}/all_rlts.csv", index=False)
+    all_preds_df.to_csv(f"{rlt_dir}/all_preds.csv", index=False)
