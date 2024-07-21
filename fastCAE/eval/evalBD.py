@@ -129,6 +129,11 @@ def process_group(args):
         plt.close()
 
 
+def DEBUG(pred_df):
+    group = pred_df[(pred_df["seqName"] == "Lecture-42c3") & (pred_df["sceneId"] == 0) & (pred_df["preset"] == "faster") & (pred_df["regressor"] == "Adam") & (pred_df["input"] == "faster")].reset_index(drop=True)
+    process_group((group, "Lecture-42c3", 0, "faster", "Adam", "faster", "psnr"))
+
+
 if __name__ == "__main__":
     table_dir = "/home/zhaoy/asset-fastCAE/results/vvenc/tables"
     fig_dir   = "/home/zhaoy/asset-fastCAE/results/vvenc/figs"
@@ -138,18 +143,11 @@ if __name__ == "__main__":
     if "p3" in pred_df.columns.tolist():
         pred_df = pred_df.drop(columns=["p3", "pred_p3"])
 
-    # DEBUG
-    # group = pred_df[(pred_df["seqName"] == "Lecture-42c3") & (pred_df["sceneId"] == 0) & (pred_df["preset"] == "faster") & (pred_df["regressor"] == "Adam") & (pred_df["input"] == "(faster)x(1080P)")].reset_index(drop=True)
-    # process_group((group, "Lecture-42c3", 0, "faster", "Adam", "(faster)x(1080P)", "psnr"))
-
-    # distortion = "psnr"
-    # for (seqName, sceneId, preset, regressor, inputs), group in tqdm(grouped):
-    #     process_group((group, seqName, sceneId, preset, regressor, inputs, distortion))
-
+    # DEBUG(pred_df)
     grouped = pred_df.groupby(["seqName", "sceneId", "preset", "regressor", "input"], as_index=False)
-    tasks = []
 
     distortions = ["psnr", "log2psnr", "ssim", "log2ssim", "vmaf", "log2vmaf"]
+    tasks = []
     for distortion in distortions:
         for (seqName, sceneId, preset, regressor, inputs), group in tqdm(grouped, desc=f"BD-Rate ({distortion})"):
             tasks.append((group, seqName, sceneId, preset, regressor, inputs, distortion))

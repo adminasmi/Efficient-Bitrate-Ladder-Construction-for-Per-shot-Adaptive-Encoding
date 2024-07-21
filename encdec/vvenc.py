@@ -21,7 +21,7 @@ vvencapp = "/home/zhaoy/vvenc/bin/release-static/vvencapp"
 rlt_root = "/hdd/CTC/enc_rlts/vvenc"
 
 qps = list(range(22, 57, 5))
-presets = ["faster", "medium", "slower"]
+presets = ["fast", "slow"]
 
 
 def encYoutubeUGC():

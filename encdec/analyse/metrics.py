@@ -7,7 +7,7 @@ from collections import deque
 
 
 # 0. read enc info from vvenc log
-def get_encInfo(logpath, read_psnr=False):
+def get_vvencInfo(logpath, read_psnr=False):
     with open(logpath, "r") as f:
         lastlines = deque(f, 10)
 
@@ -27,6 +27,10 @@ def get_encInfo(logpath, read_psnr=False):
         return [bitrate, y_psnr, u_psnr, v_psnr, yuv_psnr, encoded_frames]
     else:
         return [bitrate, encoded_frames]
+
+
+def get_av1Info(logpath, read_psnr=False):
+    pass
 
 
 # 1. vmaf

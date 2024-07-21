@@ -6,12 +6,13 @@ vvdecapp = "/home/zhaoy/vvdec/bin/release-static/vvdecapp"
 
 # sizes = ["360P", "540P", "720P", "1080P"]
 
-sizes = ["1080P"]
+sizes = ["360P", "540P", "720P"]
 
 def countJobs(jobName):
     """ 检测某个任务的数量 """
     fileHandle = os.popen(f"ps -e | grep {jobName} | wc -l")
     return int(fileHandle.read())
+
 
 def decYoutubeUGC():
     root = "/hdd/YoutubeUGC/enc_rlts/vvenc"
@@ -63,3 +64,7 @@ def decCTC():
 
                     while countJobs("vvdecapp") > 120:
                         time.sleep(0.5)
+
+
+if __name__ == '__main__':
+    decCTC()

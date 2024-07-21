@@ -2,7 +2,7 @@
 import os, re
 from tqdm import tqdm
 
-sizes = ["360P", "720P", "1080P"]
+sizes = ["540P"]
 size_map = {
     "2160P": "3840x2160",
     "1080P": "1920x1080",

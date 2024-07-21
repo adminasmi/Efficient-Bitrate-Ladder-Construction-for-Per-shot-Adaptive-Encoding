@@ -59,5 +59,6 @@ def decCTC():
                     cmd = f"{av1dec} -i {bin_path} -w {width} -h {height} -o {rec_path}"
                     os.system(cmd)
 
+
 if __name__ == '__main__':
     decCTC()

@@ -5,15 +5,14 @@ size_map = {
     "540P": "960x540",
     "360P": "640x360",
 }
+import sys
+sys.path.append("../../")
 
-enc_root  = "/hdd/YoutubeUGC/enc_rlts/vvenc"
+enc_root  = "/hdd/YoutubeUGC/enc_rlts/svtav1"
 orig_root = "/hdd/YoutubeUGC/scenes"        # orig: Lecture-2513_1080P_scene7.yuv
 
 vmaf_dir = "/home/zhaoy/vmaf"
 sizes    = ["360P", "540P", "720P", "1080P"]
-
-import sys
-sys.path.append("../../")
 
 import os
 import re
@@ -24,7 +23,7 @@ from encdec.utils import countJobs
 from metrics import getPSNR, getSSIM, getVMAF, get_vvencInfo, calPSNR, calSSIM
 
 
-def getEncInfo(save_dir="/home/zhaoy/asset-fastCAE/results/vvenc/tables", get_psnr=True, get_ssim=True, get_vmaf=True):
+def getEncInfo(save_dir="/home/zhaoy/asset-fastCAE/results/svtav1/tables", get_psnr=True, get_ssim=True, get_vmaf=True):
     allseqInfo = []
     for size in sizes:
         seqs = os.listdir(f"{enc_root}/{size}")
@@ -39,7 +38,7 @@ def getEncInfo(save_dir="/home/zhaoy/asset-fastCAE/results/vvenc/tables", get_ps
                 qp = re.search("qp(\d+)", rec_yuv)[1]
                 preset = rec_yuv.split(".")[0].split("_")[-1]
 
-                enc_info = get_vvencInfo(os.path.join(seq_dir, "log", rec_yuv.replace("yuv", "log")), read_psnr=False)
+                enc_info = get_vvencInfo(os.path.join(seq_dir, "stat", rec_yuv.replace("yuv", "stat")), read_psnr=False)
                 bitrate, nframes = enc_info[0], enc_info[1]
 
                 try:
@@ -56,7 +55,6 @@ def getEncInfo(save_dir="/home/zhaoy/asset-fastCAE/results/vvenc/tables", get_ps
     allseqInfoDf.to_csv(f"{save_dir}/encInfo.csv", index=False)
 
 
-# getEncInfo(get_psnr=True, get_ssim=True, get_vmaf=True)
 def cal_PSNR_SSIM():
     for size in sizes:
         seqs = os.listdir(f"{enc_root}/{size}")
@@ -84,9 +82,10 @@ def cal_PSNR_SSIM():
                     orig_path, rec_path, ssim_dir=os.path.join(metrics_dir, "ssim"),
                     orig_fmt="yuv420p", rec_fmt="yuv420p10le", height=height, width=width
                 )
-
-                while countJobs("ffmpeg") > 500:
+                while countJobs("ffmpeg") > 300:
                     time.sleep(0.5)
 
+
 if __name__ == '__main__':
-    getEncInfo()
+    cal_PSNR_SSIM()
+    # getEncInfo()
