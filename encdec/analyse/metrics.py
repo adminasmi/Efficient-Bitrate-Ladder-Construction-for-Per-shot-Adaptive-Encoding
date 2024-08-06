@@ -15,22 +15,55 @@ def get_vvencInfo(logpath, read_psnr=False):
             if " a " in line:
                 parts = line.split()
                 bitrate = float(parts[4])
-                y_psnr = float(parts[5])
-                u_psnr = float(parts[6])
-                v_psnr = float(parts[7])
-                yuv_psnr = float(parts[8])
+                psnr_y = float(parts[5])
+                psnr_u = float(parts[6])
+                psnr_v = float(parts[7])
+                psnr   = (psnr_y * 6 + psnr_u + psnr_v) / 8.0
 
             if "vvencapp" in line:
-                encoded_frames = int(re.search(r"encoded Frames (\d+)", line)[1])
+                nframes = int(re.search(r"encoded Frames (\d+)", line)[1])
 
     if read_psnr:
-        return [bitrate, y_psnr, u_psnr, v_psnr, yuv_psnr, encoded_frames]
+        return [bitrate, psnr_y, psnr_u, psnr_v, psnr, nframes]
     else:
-        return [bitrate, encoded_frames]
+        return [bitrate, nframes]
 
 
-def get_av1Info(logpath, read_psnr=False):
-    pass
+def get_av1Info(logpath):
+    # Picture Number:  375     QP:   30  [ PSNR-Y: 20.85 dB,  PSNR-U: 31.60 dB,       PSNR-V: 31.61 dB,       MSE-Y: 534.52,  MSE-U: 44.98,   MSE-V: 44.88,   SSIM-Y: 0.27658,        SSIM-U: 0.66819,        SSIM-V: 0.68039 ]          2042 bytes
+    psnr_y, psnr_u, psnr_v = 0, 0, 0
+    ssim_y, ssim_u, ssim_v = 0, 0, 0
+    nframes = 0
+    bitrate = 0
+    with open(logpath, "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            pattern = re.compile(
+                r"PSNR-Y:\s*(?P<psnr_y>[\d.]+) dB,\s*"
+                r"PSNR-U:\s*(?P<psnr_u>[\d.]+) dB,\s*"
+                r"PSNR-V:\s*(?P<psnr_v>[\d.]+) dB,\s*"
+                r"SSIM-Y:\s*(?P<ssim_y>[\d.]+),\s*"
+                r"SSIM-U:\s*(?P<ssim_u>[\d.]+),\s*"
+                r"SSIM-V:\s*(?P<ssim_v>[\d.]+)*"
+                r"(?P<size>\d+) bytes"
+            )
+            match = pattern.match(line)
+
+            if match:
+                data = match.groupdict()
+                psnr_y  += float(data['psnr_y'])
+                psnr_u  += float(data['psnr_u'])
+                psnr_v  += float(data['psnr_v'])
+                ssim_y  += float(data['ssim_y'])
+                ssim_u  += float(data['ssim_u'])
+                ssim_v  += float(data['ssim_v'])
+                bitrate += int(data['size'])
+                nframes += 1
+
+    psnr = (6 * psnr_y + psnr_u + psnr_v) / (8 * nframes)
+    ssim = (6 * ssim_y + ssim_u + ssim_v) / (8 * nframes)
+
+    return  [bitrate, nframes, psnr, ssim]
 
 
 # 1. vmaf
@@ -73,7 +106,9 @@ def calPSNR(
         rec_fmt="yuv420p10le",
         height = 270,
         width = 480,
-        cover_prev = True
+        cover_prev = True,
+        scale_width  = 1920,
+        scale_height = 1080
 ):
     psnr_log = os.path.join(psnr_dir, os.path.split(rec_path)[-1].replace(".yuv", ".txt"))
     if os.path.exists(psnr_log):
@@ -87,8 +122,8 @@ def calPSNR(
        f"-s {width}x{height} -pix_fmt {rec_fmt}  -i {rec_path} "
        f"-s {width}x{height} -pix_fmt {orig_fmt} -i {orig_path} "
        f"-lavfi '"
-       f"[0:v]scale=w=1920:h=1080:flags=lanczos+accurate_rnd+full_chroma_int:sws_dither=none:param0=5,setpts=PTS-STARTPTS[reference];"
-       f"[1:v]scale=w=1920:h=1080:flags=lanczos+accurate_rnd+full_chroma_int:sws_dither=none:param0=5,setpts=PTS-STARTPTS[distorted];"
+       f"[0:v]scale=w={scale_width}:h={scale_height}:flags=lanczos+accurate_rnd+full_chroma_int:sws_dither=none:param0=5,setpts=PTS-STARTPTS[reference];"
+       f"[1:v]scale=w={scale_width}:h={scale_height}:flags=lanczos+accurate_rnd+full_chroma_int:sws_dither=none:param0=5,setpts=PTS-STARTPTS[distorted];"
        f"[distorted][reference]psnr=stats_file={psnr_log}' -f null - &"
    )
     os.system(cmd)
@@ -102,7 +137,9 @@ def calSSIM(
         rec_fmt="yuv420p10le",
         height=270,
         width=480,
-        cover_prev=True
+        cover_prev=True,
+        scale_width  = 1920,
+        scale_height = 1080
 ):
     ssim_log = os.path.join(ssim_dir, os.path.split(rec_path)[-1].replace(".yuv", ".txt"))
     if os.path.exists(ssim_log):
@@ -116,8 +153,8 @@ def calSSIM(
        f"-s {width}x{height} -pix_fmt {rec_fmt}  -i {rec_path} "
        f"-s {width}x{height} -pix_fmt {orig_fmt} -i {orig_path} "
        f"-lavfi '"
-       f"[0:v]scale=w=1920:h=1080:flags=lanczos+accurate_rnd+full_chroma_int:sws_dither=none:param0=5,setpts=PTS-STARTPTS[reference];"
-       f"[1:v]scale=w=1920:h=1080:flags=lanczos+accurate_rnd+full_chroma_int:sws_dither=none:param0=5,setpts=PTS-STARTPTS[distorted];"
+       f"[0:v]scale=w={scale_width}:h={scale_height}:flags=lanczos+accurate_rnd+full_chroma_int:sws_dither=none:param0=5,setpts=PTS-STARTPTS[reference];"
+       f"[1:v]scale=w={scale_width}:h={scale_height}:flags=lanczos+accurate_rnd+full_chroma_int:sws_dither=none:param0=5,setpts=PTS-STARTPTS[distorted];"
        f"[distorted][reference]ssim=stats_file={ssim_log}' -f null - &"
     )
     os.system(cmd)

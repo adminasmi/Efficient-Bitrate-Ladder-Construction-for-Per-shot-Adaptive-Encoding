@@ -23,6 +23,21 @@ from tqdm import tqdm
 from encdec.utils import countJobs
 from metrics import getPSNR, getSSIM, getVMAF, get_vvencInfo, calPSNR, calSSIM
 
+def convertfmtCTC(orig_root):
+    sizes = ["360P", "540P", "720P", "1080P"]
+    classes = ["B", "C", "D", "E", "F"]
+
+    for c in classes:
+        for size in sizes:
+            seqs = glob(os.path.join(orig_root, "yuv420p", c, size, "*.yuv"))
+
+            for seq in tqdm(seqs):
+                width, height = size_map[size].split("x")[0], size_map[size].split("x")[1]
+                converted_seq = seq.replace("yuv420p", "yuv420p10le")
+
+                os.makedirs(f"{orig_root}/yuv420p10le/{c}/{size}", exist_ok=True)
+                convertfmt(seq, converted_seq, width, height)
+
 
 def getEncInfo(save_dir="/home/zhaoy/asset-fastCAE/results/vvenc/tables", get_psnr=True, get_ssim=True, get_vmaf=True):
     allseqInfo = []
@@ -87,6 +102,7 @@ def cal_PSNR_SSIM():
 
                 while countJobs("ffmpeg") > 500:
                     time.sleep(0.5)
+
 
 if __name__ == '__main__':
     getEncInfo()

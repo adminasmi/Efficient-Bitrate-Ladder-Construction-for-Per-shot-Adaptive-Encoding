@@ -134,16 +134,12 @@ def _single_regression(train_df, test_df, preset_x, regressor_cls, regressor_par
 
 early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
 regressors = {
-    RandomForestRegressor: {'n_estimators': 1000, 'max_depth': 8, 'min_samples_split': 2, 'min_samples_leaf': 1,
-                            'random_state': 42},
+    RandomForestRegressor: {'n_estimators': 1000, 'max_depth': 8, 'min_samples_split': 2, 'min_samples_leaf': 1, 'random_state': 42},
     LinearRegression: {},
     LinearSVR: {'C': 1.0, 'epsilon': 0.1, 'max_iter': 30000, 'tol': 1e-4, 'random_state': 42},
-    SGDRegressor: {'loss': 'huber', 'penalty': 'l1', 'alpha': 0.001, 'learning_rate': 'optimal', 'max_iter': 30000,
-                   'tol': 1e-4, 'random_state': 42},
-    'Adam': {'epochs': 5000, 'batch_size': 128, 'verbose': False, 'validation_split': 0.1,
-             'callbacks': [early_stopping]},
-    'RMSProp': {'epochs': 5000, 'batch_size': 128, 'verbose': False, 'validation_split': 0.1,
-                'callbacks': [early_stopping]}
+    SGDRegressor: {'loss': 'huber', 'penalty': 'l1', 'alpha': 0.001, 'learning_rate': 'optimal', 'max_iter': 30000, 'tol': 1e-4, 'random_state': 42},
+    'Adam': {'epochs': 5000, 'batch_size': 128, 'verbose': False, 'validation_split': 0.1, 'callbacks': [early_stopping]},
+    'RMSProp': {'epochs': 5000, 'batch_size': 128, 'verbose': False, 'validation_split': 0.1, 'callbacks': [early_stopping]}
 }
 
 
