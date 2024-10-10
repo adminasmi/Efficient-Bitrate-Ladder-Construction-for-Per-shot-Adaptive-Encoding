@@ -68,10 +68,8 @@ def _single_regression(train_df, test_df, preset_x, size_x, regressor_cls, regre
     train_df = train_df.sort_values(by=["preset", "size", "seqName", "sceneId"]).reset_index(drop=True)
     test_df = test_df.sort_values(by=["preset", "size", "seqName", "sceneId"]).reset_index(drop=True)
 
-    train_x = train_df[(train_df["preset"] == preset_x) & (train_df["size"] == size_x)][
-        metrics + [f"y{i}" for i in range(5)]].astype(float)
-    test_x = test_df[(test_df["preset"] == preset_x) & (test_df["size"] == size_x)][
-        metrics + [f"y{i}" for i in range(5)]].astype(float)
+    train_x = train_df[(train_df["preset"] == preset_x) & (train_df["size"] == size_x)][metrics + [f"y{i}" for i in range(5)]].astype(float)
+    test_x = test_df[(test_df["preset"] == preset_x) & (test_df["size"] == size_x)][metrics + [f"y{i}" for i in range(5)]].astype(float)
     assert (train_x.empty == False) and (test_x.empty == False)
 
     regressor_name = regressor_cls if regressor_cls in ["Adam", "RMSProp"] else regressor_cls.__name__
