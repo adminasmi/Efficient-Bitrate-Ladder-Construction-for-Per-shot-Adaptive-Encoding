@@ -32,7 +32,7 @@ def encYoutubeUGC():
         for seq in tqdm(list(filter(lambda x: x.endswith(".yuv"), os.listdir(yuv_dir)))):
             # Lecture-2655_1080P_scene6.yuv
             seq_path = os.path.join(yuv_dir, seq)
-            seq_name = seq.split("_")[0]
+            seq_name = seq.split("_")[0]                        
 
             rlt_dir = os.path.join(rlt_root, size, seq_name)
 
