@@ -16,37 +16,44 @@ fps = 30
 av1enc = "/home/zhaoy/SVT-AV1/Bin/Release/SvtAv1EncApp"
 av1dec = "/home/zhaoy/SVT-AV1/Bin/Release/SvtAv1DecApp"
 
-qps = list(range(22, 58, 3))
-presets = [2, 5, 8, 11]
+# qps = list(range(22, 58, 3))
+# presets = [2, 5, 8, 11]
+qps = [22,27,32,37]
+presets = [3]
 
 
 def encYoutubeUGC():
     yuv_root = "/hdd/YoutubeUGC/scenes/yuv420p"
     rlt_root = "/hdd/YoutubeUGC/enc_rlts/svtav1"
     for size in sizes:
-        yuv_dir = os.path.join(yuv_root, size)
         width, height = size_map[size].split("x")[0], size_map[size].split("x")[1]
 
-        for seq in tqdm(list(filter(lambda x: x.endswith(".yuv"), os.listdir(yuv_dir)))):
-            # Lecture-2655_1080P_scene6.yuv
-            seq_path = os.path.join(yuv_dir, seq)
-            seq_name = seq.split("_")[0]
+        for type in["lfr","hfr"]:
+            yuv_dir = os.path.join(yuv_root, size, type)
 
-            rlt_dir = os.path.join(rlt_root, size, seq_name)
+            for seq in tqdm(list(filter(lambda x: x.endswith(".yuv"), os.listdir(yuv_dir)))):
+                # Lecture-2655_1080P_scene6.yuv
+                seq_path = os.path.join(yuv_dir, seq)
+                seq_name = seq.split("_")[0]
+                fps = re.search(r"\d+x\d+_(\d+)", seq)[1]
+                rlt_dir = os.path.join(rlt_root, size, seq_name)
 
-            for qp in qps:
-                for preset in presets:
-                    os.makedirs(f"{rlt_dir}/bin", exist_ok=True)
-                    os.makedirs(f"{rlt_dir}/log", exist_ok=True)
+                for qp in qps:
+                    for preset in presets:
+                        os.makedirs(f"{rlt_dir}/bin", exist_ok=True)
+                        os.makedirs(f"{rlt_dir}/log", exist_ok=True)
 
-                    bin  = os.path.join(rlt_dir, "bin", seq.replace(".yuv", f"_qp{qp}_{preset}.bin"))
-                    stat = os.path.join(rlt_dir, "log", seq.replace(".yuv", f"_qp{qp}_{preset}.stat"))
+                        bin  = os.path.join(rlt_dir, "bin", seq.replace(".yuv", f"_qp{qp}_{preset}.bin"))
+                        stat = os.path.join(rlt_dir, "log", seq.replace(".yuv", f"_qp{qp}_{preset}.stat"))
 
-                    if os.path.exists(bin) and os.path.exists(stat):
-                        continue
+                        if os.path.exists(bin) and os.path.exists(stat):
+                            continue
 
-                    cmd = f"{av1enc} -i {seq_path} -w {width} -h {height} --fps {fps} --qp {qp} --preset {preset} --pass 1 --enable-stat-report 1 --stat-file {stat} -b {bin}"
-                    os.system(cmd)
+                        # cmd = f"{av1enc} -i {seq_path} -w {width} -h {height} --fps {fps} --qp {qp} --preset {preset} --pass 1 --enable-stat-report 1 --stat-file {stat} -b {bin}"
+                        cmd = f"{av1enc} -i {seq_path} -w {width} -h {height} --fps {fps} --qp {qp} --preset {preset} --tune 2 --rc 0 --enable-qm 1 --keyint 256 --hierarchical-levels 5 --enable-stat-report 1 --stat-file {stat} -b {bin}"
+                        
+
+                        os.system(cmd)
 
 
 classes = ["B", "C", "D", "E", "F"]
