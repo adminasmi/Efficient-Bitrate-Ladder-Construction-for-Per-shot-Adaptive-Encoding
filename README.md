@@ -2,8 +2,6 @@ This repository contains the code and scripts for the paper:
 
 *Efficient Bitrate Ladder Construction for Per-shot Adaptive Encoding* (**VCIP 2024 Best Student Paper Runner-Up**)  
 
-https://scholar.google.com/citations?view_op=view_citation&hl=zh-CN&user=6kFyDOAAAAAJ&citation_for_view=6kFyDOAAAAAJ:IjCSPb-OGe4C
-
 ---
 
 ## Overview
