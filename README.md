@@ -72,6 +72,15 @@ We follow two steps: **curve fitting** → **cross-curve prediction**.
 
 ---
 
+@inproceedings{zhao2024efficient,
+  title={Efficient Bitrate Ladder Construction for Per-Shot Adaptive Encoding},
+  author={Zhao, Yan and Cheng, ZhengXue and Lu, Guo and Xie, Rong and Song, Li},
+  booktitle={2024 IEEE International Conference on Visual Communications and Image Processing (VCIP)},
+  pages={1--5},
+  year={2024},
+  organization={IEEE}
+}
+
 ## Plotting
 - Intermediate plots are typically inside the corresponding notebooks.
 - Final plots (including paper-style figures) are generated in:
